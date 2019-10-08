@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.jmedeisis:bugstick:0.2.2@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/65b721a0c41bba9fa792c891a15321ba/jetified-bugstick-0.2.2/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/65b721a0c41bba9fa792c891a15321ba/jetified-bugstick-0.2.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dd47cb3c02f9f8b067a010164eb8cced/jetified-bugstick-0.2.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dd47cb3c02f9f8b067a010164eb8cced/jetified-bugstick-0.2.2/res" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jmedeisis/bugstick/0.2.2/6556a98c39621f6050a1e4319a05cae53e8a3b35/bugstick-0.2.2-javadoc.jar!/" />

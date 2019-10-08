@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.onurkagan:ktoast:1.0.3@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/269330d7078d2a09984b1ce1a4be7e47/ktoast-1.0.3/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/269330d7078d2a09984b1ce1a4be7e47/ktoast-1.0.3/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/c76a40f28d9b4aad5c445d2d783152fc/ktoast-1.0.3/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/c76a40f28d9b4aad5c445d2d783152fc/ktoast-1.0.3/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

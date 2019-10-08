@@ -1,41 +1,30 @@
 package com.example.caos;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.github.glomadrian.velocimeterlibrary.VelocimeterView;
 import com.jmedeisis.bugstick.Joystick;
 import com.jmedeisis.bugstick.JoystickListener;
 import com.onurkaganaldemir.ktoastlib.KToast;
-
-import java.util.Map;
-
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
 import app.akexorcist.bluetotohspp.library.DeviceList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int STICK_NONE = 0;
     private static final int STICK_UP = 1;
     private static final int STICK_UPRIGHT = 2;
     private static final int STICK_RIGHT = 3;
@@ -44,39 +33,28 @@ public class MainActivity extends AppCompatActivity {
     private static final int STICK_DOWNLEFT = 6;
     private static final int STICK_LEFT = 7;
     private static final int STICK_UPLEFT = 8;
-    private static final int RESULT_SETTING = 0;
 
     private View mDecorView;
-    Boolean buttonDownLeft = false;
-    Boolean buttonDownRight = false;
     BluetoothSPP bt;
     Context context;
     Boolean btConnect = false;
 
-    TextView txtAngle;
-    TextView txtOffset;
-    TextView txtHold;
     TextView txtValue;
     Menu menu;
     Joystick joystickRight, joystickLeft;
     SharedPreferences prefs;
     VideoView videoView;
-
-    TextView txtStatus;
+    private VelocimeterView velocimeter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
-
-        joystickLeft = (Joystick) findViewById(R.id.joystickLeft);
-        joystickRight = (Joystick) findViewById(R.id.joystickRight);
-        txtStatus = findViewById(R.id.txtStatus);
-
+        getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.windowBackground));
+        joystickLeft =  findViewById(R.id.joystickLeft);
+        joystickRight =  findViewById(R.id.joystickRight);
+        velocimeter = findViewById(R.id.velocimeter);
         // setup bluetooth
         bt = new BluetoothSPP(context);
         checkBluetoothState();
@@ -84,28 +62,23 @@ public class MainActivity extends AppCompatActivity {
         bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
             public void onDeviceConnected(String name, String address) {
                 // Do something when successfully connected
-                msj("Conectado","success");
+//                Toast.makeText(getApplicationContext(), R.string.state_connected, Toast.LENGTH_SHORT).show();
                 btConnect = true;
-                // change setting menu
-                txtStatus.setText("Conectado");
+
             }
 
             public void onDeviceDisconnected() {
                 // Do something when connection was disconnected
-                msj("Desconectado","warning");
+//                Toast.makeText(getApplicationContext(), R.string.state_disconnected, Toast.LENGTH_SHORT).show();
                 btConnect = false;
                 btConnect = true;
-                // change setting menu
-                txtStatus.setText("Desconectado");
+                // change setting men
             }
 
             public void onDeviceConnectionFailed() {
                 // Do something when connection failed
-                msj("Desconectado, fallo la conexion","warning");
-                btConnect = false;
-                btConnect = true;
-                // change setting menu
-                txtStatus.setText("Desconectado");
+//                Toast.makeText(getApplicationContext(), R.string.state_connection_failed, Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -115,762 +88,96 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private String joystickData(String key, float offset) {
-        final boolean pwm = prefs.getBoolean("pref_send_pwm_switch", false);
-        String data = "";
-        if ((pwm == false) && (distanceConvert(offset) >= 100)) {
-            // start
-            if (prefs.getBoolean("pref_token_switch", true) == true) {
-                data = data + prefs.getString("pref_before_token", "");
-            }
-            // data
-            data = data + prefs.getString(key, "");
-            // pwm
-            if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                data = data + prefs.getString("pref_pwm_separator", "");
-                data = data + distanceConvert(offset);
-            }
-            // stop
-            if (prefs.getBoolean("pref_token_switch", true) == true) {
-                data = data + prefs.getString("pref_end_token", "");
-            }
-        } else if (pwm == true) {
-            // start
-            if (prefs.getBoolean("pref_token_switch", true) == true) {
-                data = data + prefs.getString("pref_before_token", "");
-            }
-            // data
-            data = data + prefs.getString(key, "");
-            // pwm
-            if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                data = data + prefs.getString("pref_pwm_separator", "");
-                data = data + distanceConvert(offset);
-            }
-            // stop
-            if (prefs.getBoolean("pref_token_switch", true) == true) {
-                data = data + prefs.getString("pref_end_token", "");
-            }
-        }
-        return data;
-    }
 
     private void setup() {
         // set view
-        txtAngle = findViewById(R.id.txtAngle);
-        txtOffset = findViewById(R.id.txtOffset);
-        txtHold =   findViewById(R.id.txtHold);
-        txtValue = findViewById(R.id.txtValue);
+        txtValue =  findViewById(R.id.value);
 
         // setup motion constrain for joystick right
         joystickLeft.setJoystickListener(new JoystickListener() {
             @Override
             public void onDown() {
-                buttonDownLeft = true;
+//                buttonDownLeft = true;
             }
 
             @Override
             public void onDrag(float degrees, float offset) {
-                // set text
-                txtAngle.setText(String.valueOf(angleConvert(degrees)));
-                txtOffset.setText(String.valueOf(distanceConvert(offset)));
 
-                // check position
                 int direction = get8Direction(degrees);
 
-                // Right hold
-                if ((buttonDownRight) && (prefs.getBoolean("pref_hold_right",false)==true)) {
-                    // set text
-                    txtHold.setText("Right Hold");
-                    // action left joystick
-                    if (direction == STICK_UP) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_up", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_up", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_upright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_upright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_RIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_right", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_right", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_downright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_downright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWN) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_down", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_down", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_downleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_downleft", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_LEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_left", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_left", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_left_pos_upleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_left_pos_upleft", offset);
-                        sendBluetoothData(data);
-                    } else {
-                        // no direction
-                    }
+                if (direction == STICK_UP) {
+
+                } else if (direction == STICK_UPRIGHT) {
+
+                } else if (direction == STICK_RIGHT) {
+
+                } else if (direction == STICK_DOWNRIGHT) {
+
+                } else if (direction == STICK_DOWN) {
+
+                } else if (direction == STICK_DOWNLEFT) {
+
+                } else if (direction == STICK_LEFT) {
+
+                } else if (direction == STICK_UPLEFT) {
+
                 } else {
-                    // action left joystick
-                    if (direction == STICK_UP) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_up", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_up", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_upright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_upright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_RIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_right", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_right", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_downright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_downright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWN) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_down", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_down", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_downleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_downleft", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_LEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_left", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_left", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_left_pos_upleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_left_pos_upleft", offset);
-                        sendBluetoothData(data);
-                    } else {
-                        // no direction
-                    }
+                    // no direction
                 }
             }
 
             @Override
             public void onUp() {
-                // set text
-                txtAngle.setText("");
-                txtOffset.setText("");
-                txtHold.setText("");
-                buttonDownLeft = false;
-                //String data = joystickData("pref_left_pos_none", 0);
-                //sendBluetoothData(data);
+
             }
         });
 
         joystickRight.setJoystickListener(new JoystickListener() {
             @Override
             public void onDown() {
-                buttonDownRight = true;
+//                buttonDownRight = true;
             }
 
             @Override
             public void onDrag(float degrees, float offset) {
                 // set text
-                txtAngle.setText(String.valueOf(angleConvert(degrees)));
-                txtOffset.setText(String.valueOf(distanceConvert(offset)));
-
-                // check position
                 int direction = get8Direction(degrees);
 
-                // Left hold
-                if ((buttonDownLeft) && (prefs.getBoolean("pref_hold_left",false)==true)) {
-                    // set text
-                    txtHold.setText("Left Hold");
-                    // action
-                    if (direction == STICK_UP) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_up", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_up", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_upright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_upright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_RIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_right", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_right", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_downright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_downright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWN) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_down", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_down", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_downleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_downleft", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_LEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_left", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_left", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_hold_right_pos_upleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_hold_right_pos_upleft", offset);
-                        sendBluetoothData(data);
-                    } else {
-                        // no direction
-                    }
+                if (direction == STICK_UP) {
+                    velocimeter.setValue(distanceConvert(offset));
+                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
+                    txtValue.setText(value);
+                } else if (direction == STICK_DOWN) {
+                    velocimeter.setValue(distanceConvert(offset));
+                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
+                    txtValue.setText(value);
                 } else {
-                    // Not hold
-                    // set action
-                    if (direction == STICK_UP) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_up", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_up", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_upright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_upright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_RIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_right", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_right", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNRIGHT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_downright", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_downright", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWN) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_down", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_down", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_DOWNLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_downleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_downleft", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_LEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_left", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_left", offset);
-                        sendBluetoothData(data);
-                    } else if (direction == STICK_UPLEFT) {
-                        /*String data = "";
-                        // start
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_before_token", "");
-                        }
-                        // data
-                        data = data + prefs.getString("pref_right_pos_upleft", "");
-                        // pwm
-                        if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
-                            data = data + prefs.getString("pref_pwm_separator", "");
-                            data = data + distanceConvert(offset);
-                        }
-                        // stop
-                        if (prefs.getBoolean("pref_token_switch", true) == true) {
-                            data = data + prefs.getString("pref_end_token", "");
-                        }*/
-                        String data = joystickData("pref_right_pos_upleft", offset);
-                        sendBluetoothData(data);
-                    } else {
-                        // no direction
-                    }
+                    velocimeter.setValue(0, true);
+                    txtValue.setText("Velocidad: 0 RPM");
                 }
-
             }
 
             @Override
             public void onUp() {
-                msj("arriba","normal");
-                txtAngle.setText("arriba");
-                txtOffset.setText("arriba");
-                txtHold.setText("arriba");
-                buttonDownRight = false;
-                //String data = joystickData("pref_right_pos_none", 0);
-                //sendBluetoothData(data);
+
             }
         });
+
     }
 
     private void checkBluetoothState() {
         if (bt.isBluetoothEnabled()) {
-            if (this.btConnect == true) {
+            if (this.btConnect) {
                 bt.disconnect();
             }
             bt.setupService();
             bt.startService(BluetoothState.DEVICE_OTHER);
             // load device list
-            Intent intent = new Intent(getApplicationContext(), DeviceList.class);
-            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+//            Intent intent = new Intent(getApplicationContext(), DeviceList.class);
+//            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
         }
     }
+
     public void msj (String mensaje,String type){
         if(type.equals("success")){
             KToast.successToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
@@ -889,69 +196,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setupJoystickMode() {
-
-        if (prefs.getBoolean("pref_left_switch",true)==false){
-            joystickLeft.setVisibility(View.INVISIBLE);
-        }else {
-            joystickLeft.setVisibility(View.VISIBLE);
-        }
-
-        if (prefs.getBoolean("pref_right_switch",true)==false){
-            joystickRight.setVisibility(View.INVISIBLE);
-        }else {
-            joystickRight.setVisibility(View.VISIBLE);
-        }
-
-        // setup motion constrain for joystick left
-        if (prefs.getBoolean("pref_constrain_left_switch", false) == false) {
-            Log.d("LOG-JOY", "constrain normal");
-            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.NONE);
-        } else if (((prefs.getBoolean("pref_constrain_left_hor", true)) == true) && ((prefs.getBoolean("pref_constrain_left_ver", true)) == false)) {
-            Log.d("LOG-JOY", "constrain hor");
-            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.HORIZONTAL);
-        } else if (((prefs.getBoolean("pref_constrain_left_hor", true)) == false) && ((prefs.getBoolean("pref_constrain_left_ver", true)) == true)) {
-            Log.d("LOG-JOY", "constrain ver");
-            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.VERTICAL);
-        } else {
-            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.NONE);
-        }
-
-        // setup motion constrain for joystick right
-        if (prefs.getBoolean("pref_constrain_right_switch", false) == false) {
-            Log.d("LOG-JOY", "constrain normal");
-            joystickRight.setMotionConstraint(Joystick.MotionConstraint.NONE);
-        } else if (((prefs.getBoolean("pref_constrain_right_hor", true)) == true) &&
-                ((prefs.getBoolean("pref_constrain_right_ver", true)) == false)) {
-            Log.d("LOG-JOY", "constrain hor");
-            joystickRight.setMotionConstraint(Joystick.MotionConstraint.HORIZONTAL);
-        } else if (((prefs.getBoolean("pref_constrain_right_hor", true)) == false) &&
-                ((prefs.getBoolean("pref_constrain_right_ver", true)) == true)) {
-            Log.d("LOG-JOY", "constrain ver");
-            joystickRight.setMotionConstraint(Joystick.MotionConstraint.VERTICAL);
-        } else {
-            joystickRight.setMotionConstraint(Joystick.MotionConstraint.NONE);
-        }
-    }
-
-    private void setupVideoMode() {
-        // setup motion constrain for joystick left
-        if (prefs.getBoolean("pref_send_video_switch", false) == true) {
-            // start video
-            try {
-                videoView = (VideoView) findViewById(R.id.videoView);
-                videoView.setVisibility(View.VISIBLE);
-                Uri videoUri = Uri.parse(prefs.getString("pref_video", ""));
-                videoView.setVideoURI(videoUri);
-                videoView.start();
-            } catch (Exception e) {
-                Log.d("LOG", e.getMessage());
-            }
-        } else {
-            videoView = (VideoView) findViewById(R.id.videoView);
-            videoView.setVisibility(View.INVISIBLE);
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -981,9 +225,9 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(enableBtIntent, BluetoothState.REQUEST_ENABLE_BT);
         }
         // setup joystick mode after restart
-        setupJoystickMode();
-        // setup video camera
-        setupVideoMode();
+//        setupJoystickMode();
+//
+//        setupVideoMode();
     }
 
 
@@ -996,18 +240,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendBluetoothData(final String data) {
         // FIXME: 11/23/15 flood output T_T
-        final int delay = Integer.parseInt(prefs.getString("pref_delay_list", "1000"));
+//        final int delay = Integer.parseInt(prefs.getString("pref_delay_list", "1000"));
 
         final Handler handler = new Handler();
 
         final Runnable r = new Runnable() {
             public void run() {
-                Log.d("LOG", data);
-                txtValue.setText(data);
                 bt.send(data, true);
             }
         };
-        handler.postDelayed(r, delay);
+        handler.postDelayed(r, 50);
     }
 
     public int get8Direction(float degrees) {
@@ -1042,32 +284,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public int distanceConvert(float offset) {
-        int pwm = (int) (offset * 100);
+        int pwm = (int) (offset * 255);
         return (pwm);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        this.menu = menu;
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
 
-        if (itemId == R.id.mnuBluetooth) {
-            checkBluetoothState();
-        } else if (itemId == R.id.mnuSetting) {
-            Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
-            startActivityForResult(i, RESULT_SETTING);
-        } else if (itemId ==R.id.mnuFullscreen) {
-            hideSystemUI();
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -1092,16 +314,137 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+//    private String joystickData(String key, float offset) {
+//        final boolean pwm = prefs.getBoolean("pref_send_pwm_switch", false);
+//        String data = "";
+//        if ((pwm == false) && (distanceConvert(offset) >= 100)) {
+//            // start
+//            if (prefs.getBoolean("pref_token_switch", true) == true) {
+//                data = data + prefs.getString("pref_before_token", "");
+//            }
+//            // data
+//            data = data + prefs.getString(key, "");
+//            // pwm
+//            if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
+//                data = data + prefs.getString("pref_pwm_separator", "");
+//                data = data + distanceConvert(offset);
+//            }
+//            // stop
+//            if (prefs.getBoolean("pref_token_switch", true) == true) {
+//                data = data + prefs.getString("pref_end_token", "");
+//            }
+//        } else if (pwm == true) {
+//            // start
+//            if (prefs.getBoolean("pref_token_switch", true) == true) {
+//                data = data + prefs.getString("pref_before_token", "");
+//            }
+//            // data
+//            data = data + prefs.getString(key, "");
+//            // pwm
+//            if (prefs.getBoolean("pref_send_pwm_switch", true) == true) {
+//                data = data + prefs.getString("pref_pwm_separator", "");
+//                data = data + distanceConvert(offset);
+//                msj(data,"error");
+//            }
+//            // stop
+//            if (prefs.getBoolean("pref_token_switch", true) == true) {
+//                data = data + prefs.getString("pref_end_token", "");
+//            }
+//        }
+//        return data;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int itemId = item.getItemId();
+//
+//        if (itemId == R.id.mnuBluetooth) {
+//            checkBluetoothState();
+//        } else if (itemId == R.id.mnuSetting) {
+//            Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+//            startActivityForResult(i, RESULT_SETTING);
+//        } else if (itemId ==R.id.mnuFullscreen) {
+//            hideSystemUI();
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+
     // This snippet shows the system bars. It does this by removing all the flags
 // except for the ones that make the content appear under the system bars.
-    private void showSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-    }
+//    private void showSystemUI() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//            mDecorView.setSystemUiVisibility(
+//                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+//        }
+//    }
+
+//    private void setupJoystickMode() {
+//
+//        if (prefs.getBoolean("pref_left_switch",true)==false){
+//            joystickLeft.setVisibility(View.INVISIBLE);
+//        }else {
+//            joystickLeft.setVisibility(View.VISIBLE);
+//        }
+//
+//        if (prefs.getBoolean("pref_right_switch",true)==false){
+//            joystickRight.setVisibility(View.INVISIBLE);
+//        }else {
+//            joystickRight.setVisibility(View.VISIBLE);
+//        }
+//
+//        // setup motion constrain for joystick left
+//        if (prefs.getBoolean("pref_constrain_left_switch", false) == false) {
+//            Log.d("LOG-JOY", "constrain normal");
+//            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.NONE);
+//        } else if (((prefs.getBoolean("pref_constrain_left_hor", true)) == true) && ((prefs.getBoolean("pref_constrain_left_ver", true)) == false)) {
+//            Log.d("LOG-JOY", "constrain hor");
+//            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.HORIZONTAL);
+//        } else if (((prefs.getBoolean("pref_constrain_left_hor", true)) == false) && ((prefs.getBoolean("pref_constrain_left_ver", true)) == true)) {
+//            Log.d("LOG-JOY", "constrain ver");
+//            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.VERTICAL);
+//        } else {
+//            joystickLeft.setMotionConstraint(Joystick.MotionConstraint.NONE);
+//        }
+//
+//        // setup motion constrain for joystick right
+//        if (prefs.getBoolean("pref_constrain_right_switch", false) == false) {
+//            Log.d("LOG-JOY", "constrain normal");
+//            joystickRight.setMotionConstraint(Joystick.MotionConstraint.NONE);
+//        } else if (((prefs.getBoolean("pref_constrain_right_hor", true)) == true) &&
+//                ((prefs.getBoolean("pref_constrain_right_ver", true)) == false)) {
+//            Log.d("LOG-JOY", "constrain hor");
+//            joystickRight.setMotionConstraint(Joystick.MotionConstraint.HORIZONTAL);
+//        } else if (((prefs.getBoolean("pref_constrain_right_hor", true)) == false) &&
+//                ((prefs.getBoolean("pref_constrain_right_ver", true)) == true)) {
+//            Log.d("LOG-JOY", "constrain ver");
+//            joystickRight.setMotionConstraint(Joystick.MotionConstraint.VERTICAL);
+//        } else {
+//            joystickRight.setMotionConstraint(Joystick.MotionConstraint.NONE);
+//        }
+//    }
+//
+//    private void setupVideoMode() {
+//        // setup motion constrain for joystick left
+//        if (prefs.getBoolean("pref_send_video_switch", false) == true) {
+//            // start video
+//            try {
+//                videoView = (VideoView) findViewById(R.id.videoView);
+//                videoView.setVisibility(View.VISIBLE);
+//                Uri videoUri = Uri.parse(prefs.getString("pref_video", ""));
+//                videoView.setVideoURI(videoUri);
+//                videoView.start();
+//            } catch (Exception e) {
+//                Log.d("LOG", e.getMessage());
+//            }
+//        } else {
+//            videoView = (VideoView) findViewById(R.id.videoView);
+//            videoView.setVisibility(View.INVISIBLE);
+//        }
+//    }
 
 
 }
