@@ -2,8 +2,6 @@ package com.example.caos;
 
 import java.util.ArrayList;
 import java.util.Set;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -12,29 +10,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.onurkaganaldemir.ktoastlib.KToast;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
 
-public class DeviceListPrimary extends AppCompatActivity {
+public class DeviceListPrimary extends AppCompatActivity implements AdapterBluetooth.OnItemClickListener{
     // Debugging
-    private static final String TAG = "BluetoothSPP";
+
 
     // Member fields
 
@@ -66,11 +57,11 @@ public class DeviceListPrimary extends AppCompatActivity {
         recyclerViewDevices.setHasFixedSize(true);
         recyclerViewDevices.setLayoutManager(new LinearLayoutManager(this));
 
+        mAdapter.setOnItemClickListener(this);
 
-//
         // Register for broadcasts when a device is discovered
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        this.registerReceiver(mReceiver, filter);
+//        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//        this.registerReceiver(mReceiver, filter);
 //
 //        // Register for broadcasts when discovery has finished
 //        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
@@ -126,7 +117,7 @@ public class DeviceListPrimary extends AppCompatActivity {
         }
 
         // Unregister broadcast listeners
-        this.unregisterReceiver(mReceiver);
+//        this.unregisterReceiver(mReceiver);
         this.finish();
     }
 
@@ -150,58 +141,75 @@ public class DeviceListPrimary extends AppCompatActivity {
     }
 
 
-    BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            // When discovery finds a device
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Get the BluetoothDevice object from the Intent
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                // If it's already paired, skip it, because it's been listed already
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    ModeloBluetooth modelo = new ModeloBluetooth();
-                    modelo.setNameBluetooth(device.getName());
-                    modelo.setAddressBluetooth(device.getAddress());
-                    mUploads.add(modelo);
-                }
-                // When discovery is finished, change the Activity title
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                setProgressBarIndeterminateVisibility(false);
-
-                if (mUploads.size() == 0) {
-                    msj("No se detectan dispositivos","warning");
-                }
-            }
-        }
-    };//fin BroadcastReceiver
+//    BroadcastReceiver mReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            String action = intent.getAction();
+//
+//            // When discovery finds a device
+//            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+//                // Get the BluetoothDevice object from the Intent
+//                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                // If it's already paired, skip it, because it's been listed already
+//                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+//                    ModeloBluetooth modelo = new ModeloBluetooth();
+//                    modelo.setNameBluetooth(device.getName());
+//                    modelo.setAddressBluetooth(device.getAddress());
+//                    mUploads.add(modelo);
+//                }
+//                // When discovery is finished, change the Activity title
+//            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+//                setProgressBarIndeterminateVisibility(false);
+//
+//                if (mUploads.size() == 0) {
+//                    msj("No se detectan dispositivos","warning");
+//                }
+//            }
+//        }
+//    };//fin BroadcastReceiver
 
     // The on-click listener for all devices in the ListViews
-    private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
-        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
-            // Cancel discovery because it's costly and we're about to connect
-            if(mBluetoothAdapter.isDiscovering())
-                mBluetoothAdapter.cancelDiscovery();
+//    private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
+//        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
+//            // Cancel discovery because it's costly and we're about to connect
+//            if(mBluetoothAdapter.isDiscovering())
+//                mBluetoothAdapter.cancelDiscovery();
+//
+//            String strNoFound = getIntent().getStringExtra("no_devices_found");
+//            if(strNoFound == null)
+//                strNoFound = "No devices found";
+//            if(!((TextView) v).getText().toString().equals(strNoFound)) {
+//                // Get the device MAC address, which is the last 17 chars in the View
+//                String info = ((TextView) v).getText().toString();
+//                String address = info.substring(info.length() - 17);
+//
+//                // Create the result Intent and include the MAC address
+//                Intent intent = new Intent();
+//                intent.putExtra(BluetoothState.EXTRA_DEVICE_ADDRESS, address);
+//
+//                // Set result and finish this Activity
+//                setResult(Activity.RESULT_OK, intent);
+//                finish();
+//            }
+//        }
+//    };
 
-            String strNoFound = getIntent().getStringExtra("no_devices_found");
-            if(strNoFound == null)
-                strNoFound = "No devices found";
-            if(!((TextView) v).getText().toString().equals(strNoFound)) {
-                // Get the device MAC address, which is the last 17 chars in the View
-                String info = ((TextView) v).getText().toString();
-                String address = info.substring(info.length() - 17);
+    @Override
+    public void onItemClick(int position) {
+        if(mBluetoothAdapter.isDiscovering()){
+            mBluetoothAdapter.cancelDiscovery();
 
-                // Create the result Intent and include the MAC address
-                Intent intent = new Intent();
-                intent.putExtra(BluetoothState.EXTRA_DEVICE_ADDRESS, address);
-
-                // Set result and finish this Activity
-                setResult(Activity.RESULT_OK, intent);
-                finish();
-            }
         }
-    };
+        final ModeloBluetooth uploadCurrent = mUploads.get(position);
+        final String name = uploadCurrent.getNameBluetooth().toUpperCase();
+//        msj(name + " - " + uploadCurrent.getAddressBluetooth(),"normal");
+        // Create the result Intent and include the MAC address
+        Intent intent = new Intent();
+        intent.putExtra(BluetoothState.EXTRA_DEVICE_ADDRESS, uploadCurrent.getAddressBluetooth());
+        // Set result and finish this Activity
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
 
     // The BroadcastReceiver that listens for discovered devices and
     // changes the title when discovery is finished

@@ -44,33 +44,12 @@ public class AdapterBluetooth extends RecyclerView.Adapter<AdapterBluetooth.Imag
 
         holder.text_name.setText(name);
         holder.text_address.setText(uploadCurrent.getAddressBluetooth());
-        holder.linear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                msj(name + " : " + uploadCurrent.getAddressBluetooth());
-            }
-        });
     }
 
     public void msj (String mensaje
     ){
         Toast.makeText(mContext,mensaje,Toast.LENGTH_SHORT).show();
-//        if(type.equals("success")){
-//            KToast.successToast(mContext.get, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
-//        } else if(type.equals("info")){
-//            KToast.infoToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
-//        } else if(type.equals("normal")){
-//            KToast.normalToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.drawable.ic_arroba);
-//        }else if(type.equals("warning")) {
-//            KToast.warningToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
-//        }else if(type.equals("error")) {
-//            KToast.errorToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
-//        }else if(type.equals("customColor")) {
-//            KToast.customColorToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.color.colorPrimary, R.drawable.ic_arroba);
-//        }else if(type.equals("customBackground")) {
-//            KToast.customBackgroudToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.drawable.ic_arroba,
-//                    null ,R.drawable.ic_arroba);
-//        }
+
     }
 
     @Override

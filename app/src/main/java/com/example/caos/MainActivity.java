@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                  if (event.getAction() == MotionEvent.ACTION_UP ) {
                     velocimeter.setValue(0, true);
                     txtValue.setText("Velocidad: 0 RPM");
+                     sendBluetoothData("S");
                      acelerador = false;
                 }
                 return false;
@@ -80,25 +81,20 @@ public class MainActivity extends AppCompatActivity {
 
         bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
             public void onDeviceConnected(String name, String address) {
-                // Do something when successfully connected
-//                Toast.makeText(getApplicationContext(), R.string.state_connected, Toast.LENGTH_SHORT).show();
                 btConnect = true;
-
+                msj("Todo listo","success");
             }
 
             public void onDeviceDisconnected() {
-                // Do something when connection was disconnected
-//                Toast.makeText(getApplicationContext(), R.string.state_disconnected, Toast.LENGTH_SHORT).show();
                 btConnect = false;
-                btConnect = true;
-                // change setting men
+                msj("Se perdio la conexion","error");
             }
 
             public void onDeviceConnectionFailed() {
-                // Do something when connection failed
-//                Toast.makeText(getApplicationContext(), R.string.state_connection_failed, Toast.LENGTH_SHORT).show();
-
+                btConnect = false;
+                msj("No conectado, verifique el equipo este encendido.","error");
             }
+
         });
         setup();
         // set view
@@ -128,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (direction == STICK_UPRIGHT) {
 
                 } else if (direction == STICK_RIGHT) {
+                    sendBluetoothData("D");
 
                 } else if (direction == STICK_DOWNRIGHT) {
 
@@ -136,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (direction == STICK_DOWNLEFT) {
 
                 } else if (direction == STICK_LEFT) {
+                    sendBluetoothData("C");
 
                 } else if (direction == STICK_UPLEFT) {
 
@@ -166,12 +164,15 @@ public class MainActivity extends AppCompatActivity {
                     velocimeter.setValue(distanceConvert(offset),true);
                     String value = "Velocidad: " + distanceConvert(offset) + " RPM";
                     txtValue.setText(value);
+                    sendBluetoothData("A");
                 } else if (direction == STICK_DOWN) {
                     acelerador = true;
                     velocimeter.setValue(distanceConvert(offset),true);
                     String value = "Velocidad: " + distanceConvert(offset) + " RPM";
                     txtValue.setText(value);
+                    sendBluetoothData("B");
                 } else {
+                    sendBluetoothData("S");
                     acelerador = false;
                     velocimeter.setValue(0, true);
                     txtValue.setText("Velocidad: 0 RPM");
@@ -187,21 +188,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkBluetoothState() {
-//        if (bt.isBluetoothEnabled()) {
-//            if (this.btConnect) {
-//                bt.disconnect();
-//            }
-//            bt.setupService();
-//            bt.startService(BluetoothState.DEVICE_OTHER);
-//            // load device list
-////            Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
-////            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-//        }
-
-        Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
-        startActivity(intent);
-        msj("hola","normal");
-//        startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+        if (bt.isBluetoothEnabled()) {
+            if (this.btConnect) {
+                bt.disconnect();
+            }
+            bt.setupService();
+            bt.startService(BluetoothState.DEVICE_OTHER);
+            // load device list
+            Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
+            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+        }
     }
 
     public void msj (String mensaje,String type){
