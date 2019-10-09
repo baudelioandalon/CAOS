@@ -1,13 +1,18 @@
 package com.example.caos;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.onurkaganaldemir.ktoastlib.KToast;
 
 import java.util.ArrayList;
 
@@ -34,11 +39,38 @@ public class AdapterBluetooth extends RecyclerView.Adapter<AdapterBluetooth.Imag
     @Override
     public void onBindViewHolder(final ImageViewHolder holder, int position) {
         //PONER DATOS EN COMPONENTES
-        ModeloBluetooth uploadCurrent = mUploads.get(position);
+        final ModeloBluetooth uploadCurrent = mUploads.get(position);
         final String name = uploadCurrent.getNameBluetooth().toUpperCase();
 
         holder.text_name.setText(name);
         holder.text_address.setText(uploadCurrent.getAddressBluetooth());
+        holder.linear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                msj(name + " : " + uploadCurrent.getAddressBluetooth());
+            }
+        });
+    }
+
+    public void msj (String mensaje
+    ){
+        Toast.makeText(mContext,mensaje,Toast.LENGTH_SHORT).show();
+//        if(type.equals("success")){
+//            KToast.successToast(mContext.get, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
+//        } else if(type.equals("info")){
+//            KToast.infoToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
+//        } else if(type.equals("normal")){
+//            KToast.normalToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.drawable.ic_arroba);
+//        }else if(type.equals("warning")) {
+//            KToast.warningToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
+//        }else if(type.equals("error")) {
+//            KToast.errorToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO);
+//        }else if(type.equals("customColor")) {
+//            KToast.customColorToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.color.colorPrimary, R.drawable.ic_arroba);
+//        }else if(type.equals("customBackground")) {
+//            KToast.customBackgroudToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.drawable.ic_arroba,
+//                    null ,R.drawable.ic_arroba);
+//        }
     }
 
     @Override
@@ -50,9 +82,11 @@ public class AdapterBluetooth extends RecyclerView.Adapter<AdapterBluetooth.Imag
 
         TextView text_name, text_address;
         ImageView text_image;
+        LinearLayout linear;
 
         public ImageViewHolder(View itemView) {
             super(itemView);
+            linear = itemView.findViewById(R.id.linear);
             text_name = itemView.findViewById(R.id.text_name);
             text_image = itemView.findViewById(R.id.text_image);
             text_address = itemView.findViewById(R.id.text_address);
