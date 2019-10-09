@@ -50,8 +50,8 @@ public class VelocimeterView extends View {
   private float nidleLastValue = min;
   private int max = 100;
   private float value;
-  private int duration = 1000;
-  private long progressDelay = 350;
+  private int duration = 500;
+  private long progressDelay = 50;
   private int margin = 15;
   private int insideProgressColor = Color.parseColor("#094e35");
   private int externalProgressColor = Color.parseColor("#9cfa1d");

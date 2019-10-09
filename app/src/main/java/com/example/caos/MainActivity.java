@@ -11,7 +11,9 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,13 +40,15 @@ public class MainActivity extends AppCompatActivity {
     BluetoothSPP bt;
     Context context;
     Boolean btConnect = false;
-
+    Button btnLeft, btnRight;
     TextView txtValue;
     Menu menu;
     Joystick joystickRight, joystickLeft;
     SharedPreferences prefs;
     VideoView videoView;
     private VelocimeterView velocimeter;
+
+    boolean acelerador = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +57,26 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.windowBackground));
         joystickLeft =  findViewById(R.id.joystickLeft);
-        joystickRight =  findViewById(R.id.joystickRight);
+        joystickRight =  findViewById(R.id.joystickRightt);
         velocimeter = findViewById(R.id.velocimeter);
+        btnLeft = findViewById(R.id.btnLeft);
+        btnRight = findViewById(R.id.btnRight);
         // setup bluetooth
         bt = new BluetoothSPP(context);
         checkBluetoothState();
+
+        btnRight.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                 if (event.getAction() == MotionEvent.ACTION_UP ) {
+                    velocimeter.setValue(0, true);
+                    txtValue.setText("Velocidad: 0 RPM");
+                     acelerador = false;
+                }
+                return false;
+            }
+        });
 
         bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
             public void onDeviceConnected(String name, String address) {
@@ -81,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+        setup();
         // set view
         mDecorView = getWindow().getDecorView();
         hideSystemUI();
@@ -92,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
     private void setup() {
         // set view
         txtValue =  findViewById(R.id.value);
-
         // setup motion constrain for joystick right
         joystickLeft.setJoystickListener(new JoystickListener() {
             @Override
@@ -135,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         joystickRight.setJoystickListener(new JoystickListener() {
             @Override
             public void onDown() {
-//                buttonDownRight = true;
+
             }
 
             @Override
@@ -144,14 +162,17 @@ public class MainActivity extends AppCompatActivity {
                 int direction = get8Direction(degrees);
 
                 if (direction == STICK_UP) {
-                    velocimeter.setValue(distanceConvert(offset));
+                    acelerador = true;
+                    velocimeter.setValue(distanceConvert(offset),true);
                     String value = "Velocidad: " + distanceConvert(offset) + " RPM";
                     txtValue.setText(value);
                 } else if (direction == STICK_DOWN) {
-                    velocimeter.setValue(distanceConvert(offset));
+                    acelerador = true;
+                    velocimeter.setValue(distanceConvert(offset),true);
                     String value = "Velocidad: " + distanceConvert(offset) + " RPM";
                     txtValue.setText(value);
                 } else {
+                    acelerador = false;
                     velocimeter.setValue(0, true);
                     txtValue.setText("Velocidad: 0 RPM");
                 }
@@ -173,8 +194,8 @@ public class MainActivity extends AppCompatActivity {
             bt.setupService();
             bt.startService(BluetoothState.DEVICE_OTHER);
             // load device list
-//            Intent intent = new Intent(getApplicationContext(), DeviceList.class);
-//            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+            Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
+            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
         }
     }
 
@@ -192,7 +213,8 @@ public class MainActivity extends AppCompatActivity {
         }else if(type.equals("customColor")) {
             KToast.customColorToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.color.colorPrimary, R.drawable.ic_arroba);
         }else if(type.equals("customBackground")) {
-            KToast.customBackgroudToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.drawable.ic_arroba, null ,R.drawable.ic_arroba);
+            KToast.customBackgroudToast(this, mensaje, Gravity.BOTTOM, KToast.LENGTH_AUTO, R.drawable.ic_arroba,
+                    null ,R.drawable.ic_arroba);
         }
     }
 
@@ -287,8 +309,6 @@ public class MainActivity extends AppCompatActivity {
         int pwm = (int) (offset * 255);
         return (pwm);
     }
-
-
 
 
     @Override

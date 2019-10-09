@@ -19,12 +19,6 @@
             android:layout_gravity="center"
             android:visibility="invisible" />
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_light"
-            android:text="TextView" />
     </FrameLayout>
 
     <FrameLayout
@@ -36,7 +30,7 @@
 
 
         <com.jmedeisis.bugstick.Joystick
-            android:id="@+id/joystickRight"
+            android:id="@+id/joystickRightt"
             android:layout_width="@dimen/base_size"
             android:layout_height="@dimen/base_size"
             android:layout_alignParentBottom="true"
@@ -47,9 +41,10 @@
 
             <!-- You may use any View here. -->
             <Button
+                android:id="@+id/btnRight"
                 android:layout_width="@dimen/stick_size"
                 android:layout_height="@dimen/stick_size"
-                android:background="@drawable/bg_stick" />
+                 />
 
         </com.jmedeisis.bugstick.Joystick>
 
@@ -65,6 +60,7 @@
 
             <!-- You may use any View here. -->
             <Button
+                android:id="@+id/btnLeft"
                 android:layout_width="@dimen/stick_size"
                 android:layout_height="@dimen/stick_size"
                 android:background="@drawable/bg_stick" />
