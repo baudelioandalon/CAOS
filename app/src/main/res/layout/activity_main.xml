@@ -44,7 +44,7 @@
                 android:id="@+id/btnRight"
                 android:layout_width="@dimen/stick_size"
                 android:layout_height="@dimen/stick_size"
-                 />
+                android:background="@drawable/bg_stick" />
 
         </com.jmedeisis.bugstick.Joystick>
 

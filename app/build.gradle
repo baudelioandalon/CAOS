@@ -25,6 +25,8 @@ dependencies {
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
     implementation 'com.github.onurkagan:ktoast:1.0.3'
     implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.jmedeisis:bugstick:0.2.2'
     implementation 'com.akexorcist:bluetoothspp:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'

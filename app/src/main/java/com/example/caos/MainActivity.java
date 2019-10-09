@@ -187,16 +187,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkBluetoothState() {
-        if (bt.isBluetoothEnabled()) {
-            if (this.btConnect) {
-                bt.disconnect();
-            }
-            bt.setupService();
-            bt.startService(BluetoothState.DEVICE_OTHER);
-            // load device list
-            Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
-            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-        }
+//        if (bt.isBluetoothEnabled()) {
+//            if (this.btConnect) {
+//                bt.disconnect();
+//            }
+//            bt.setupService();
+//            bt.startService(BluetoothState.DEVICE_OTHER);
+//            // load device list
+////            Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
+////            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+//        }
+
+        Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
+        startActivity(intent);
+        msj("hola","normal");
+//        startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
     }
 
     public void msj (String mensaje,String type){
@@ -261,8 +266,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void sendBluetoothData(final String data) {
-        // FIXME: 11/23/15 flood output T_T
-//        final int delay = Integer.parseInt(prefs.getString("pref_delay_list", "1000"));
 
         final Handler handler = new Handler();
 
