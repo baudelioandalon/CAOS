@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     android:exitFadeDuration="500">
 
-    <item android:state_pressed="false" android:drawable="@drawable/bg_stick_pressed" />
+    <item android:state_pressed="false" android:drawable="@drawable/bg_base" />
     <item android:drawable="@drawable/bg_stick_unpressed" />
 
 </selector>

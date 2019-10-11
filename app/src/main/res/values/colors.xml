@@ -8,6 +8,9 @@
     <!-- joystick -->
     <color name="needle">#FF009EFD</color>
     <color name="white">#FFFFFF</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#FF4CAF50</color>
+    <color name="blue">#0000FF</color>
     <color name="baseColor">#50ffffff</color>
     <color name="stickColor">#20ffffff</color>
     <color name="indigo_500">#3F51B5</color>
