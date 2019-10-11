@@ -171,7 +171,31 @@ public class MainActivity extends AppCompatActivity {
                     String value = "Velocidad: " + distanceConvert(offset) + " RPM";
                     txtValue.setText(value);
                     sendBluetoothData("B");
-                } else {
+                } else if(direction == STICK_UPRIGHT){
+                    acelerador = true;
+                    velocimeter.setValue(distanceConvert(offset),true);
+                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
+                    txtValue.setText(value);
+                    sendBluetoothData("A");
+                } else if(direction == STICK_UPLEFT) {
+                    acelerador = true;
+                    velocimeter.setValue(distanceConvert(offset), true);
+                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
+                    txtValue.setText(value);
+                    sendBluetoothData("A");
+                } else if(direction == STICK_DOWNRIGHT) {
+                    acelerador = true;
+                    velocimeter.setValue(distanceConvert(offset), true);
+                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
+                    txtValue.setText(value);
+                    sendBluetoothData("B");
+                } else if(direction == STICK_DOWNLEFT) {
+                    acelerador = true;
+                    velocimeter.setValue(distanceConvert(offset), true);
+                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
+                    txtValue.setText(value);
+                    sendBluetoothData("B");
+                }else{
                     sendBluetoothData("S");
                     acelerador = false;
                     velocimeter.setValue(0, true);

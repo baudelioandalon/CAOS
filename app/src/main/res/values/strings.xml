@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">CAOS</string>
     <string name="desconectado">Desconectado</string>
+    <string name="mac">00:00:00:00:00:00</string>
 </resources>

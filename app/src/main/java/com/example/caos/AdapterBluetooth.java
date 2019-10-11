@@ -1,19 +1,14 @@
 package com.example.caos;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.onurkaganaldemir.ktoastlib.KToast;
-
 import java.util.ArrayList;
 
 public class AdapterBluetooth extends RecyclerView.Adapter<AdapterBluetooth.ImageViewHolder>  {
@@ -40,7 +35,7 @@ public class AdapterBluetooth extends RecyclerView.Adapter<AdapterBluetooth.Imag
     public void onBindViewHolder(final ImageViewHolder holder, int position) {
         //PONER DATOS EN COMPONENTES
         final ModeloBluetooth uploadCurrent = mUploads.get(position);
-        final String name = uploadCurrent.getNameBluetooth().toUpperCase();
+        final String name = uploadCurrent.getNameBluetooth();
 
         holder.text_name.setText(name);
         holder.text_address.setText(uploadCurrent.getAddressBluetooth());
@@ -60,14 +55,14 @@ public class AdapterBluetooth extends RecyclerView.Adapter<AdapterBluetooth.Imag
     public class ImageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView text_name, text_address;
-        ImageView text_image;
-        LinearLayout linear;
+        ImageView text_imagen;
+        RelativeLayout linear;
 
         public ImageViewHolder(View itemView) {
             super(itemView);
             linear = itemView.findViewById(R.id.linear);
             text_name = itemView.findViewById(R.id.text_name);
-            text_image = itemView.findViewById(R.id.text_image);
+            text_imagen = itemView.findViewById(R.id.text_imagen);
             text_address = itemView.findViewById(R.id.text_address);
             itemView.setOnClickListener(this);
         }

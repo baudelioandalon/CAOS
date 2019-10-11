@@ -1,61 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardView_imgEmpresa"
+<LinearLayout android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:orientation="horizontal"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="2dp">
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:background="@drawable/shadow_bluetooth"
+    android:elevation="4dp"
+    android:layout_marginEnd="15dp"
+    android:layout_marginStart="7dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
-    <LinearLayout
-        android:id="@+id/linear"
-        android:background="@drawable/shadow_elements"
+<RelativeLayout
+    android:id="@+id/linear"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="150dp">
+
+    <RelativeLayout
+        android:background="@drawable/gradient_element"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="100dp">
 
-        <ImageView
-            android:layout_margin="15dp"
-            android:id="@+id/text_image"
-            android:layout_width="40sp"
-            android:layout_height="40sp"
-            android:layout_gravity="center"
-            android:layout_marginStart="10sp"
-            android:background="@drawable/phone"/>
+    </RelativeLayout>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <io.github.armcha.coloredshadow.ShadowImageView
+        android:id="@+id/text_imagen"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/ic_element"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp" />
 
-            <TextView
-                android:id="@+id/text_name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20sp"
-                android:layout_marginStart="20sp"
-                android:text="Sin elementos"
-                android:textStyle="bold"
-                android:textSize="15sp"
-                android:gravity="center_vertical"
-                android:textColor="#000000" />
-            <TextView
-                android:id="@+id/text_address"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20sp"
-                android:layout_marginStart="20sp"
-                android:text="Sin elementos"
-                android:textStyle="bold"
-                android:textSize="15sp"
-                android:gravity="center_vertical"
-                android:textColor="#000000" />
-        </LinearLayout>
-    </LinearLayout>
+</RelativeLayout>
 
-</androidx.cardview.widget.CardView>
+
+<TextView
+    android:id="@+id/text_name"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:layout_marginBottom="3dp"
+    android:fontFamily="@font/roboto_light"
+    android:text="Element Name"
+    android:textAlignment="center"
+    android:textColor="@color/black"
+    android:textSize="15sp" />
+
+<TextView
+    android:drawableLeft="@drawable/ic_mac"
+    android:id="@+id/text_address"
+
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="3dp"
+    android:layout_marginStart="3dp"
+    style="@style/TextViewParent"
+    android:text="00:00:00:00:00:00"/>
+
+
+</LinearLayout>

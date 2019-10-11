@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.armcha:ColoredShadowImageView:1.1.0@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4117cdd4da085b980e95d25219875007/jetified-ColoredShadowImageView-1.1.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4117cdd4da085b980e95d25219875007/jetified-ColoredShadowImageView-1.1.0/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.armcha/ColoredShadowImageView/1.1.0/774c51f01f88cead51469b5909b2bc14d03f0c69/ColoredShadowImageView-1.1.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.armcha/ColoredShadowImageView/1.1.0/2f314ae563e8a47ccbd3a60f7de50b97280f6c47/ColoredShadowImageView-1.1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

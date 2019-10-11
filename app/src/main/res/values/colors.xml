@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#00838F</color>
+    <color name="colorSecondary">#FF009EFD</color>
     <color name="colorPrimaryDark">#006064</color>
     <color name="colorAccent">#FF5722</color>
     <color name="windowBackground">#616161</color>
@@ -11,5 +12,6 @@
     <color name="stickColor">#20ffffff</color>
     <color name="indigo_500">#3F51B5</color>
     <color name="blue_500">#2196F3</color>
+    <color name="black">#000000</color>
 
 </resources>
