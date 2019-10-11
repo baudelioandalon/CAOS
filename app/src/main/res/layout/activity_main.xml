@@ -11,14 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-<!--&lt;!&ndash;        <VideoView&ndash;&gt;-->
-<!--&lt;!&ndash;            android:id="@+id/videoView"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_height="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_centerInParent="true"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_gravity="center"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:visibility="invisible" />&ndash;&gt;-->
-<!--        -->
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="invisible" />
 
     </FrameLayout>
 
@@ -127,6 +125,7 @@
                         android:layout_height="wrap_content"/>
 
                     <TextView
+                        android:id="@+id/colorSeleccionado"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -144,6 +143,7 @@
                     android:orientation="horizontal">
 
                     <Button
+                        android:id="@+id/btnRed"
                         android:textColor="@color/white"
                         android:textAlignment="center"
                         android:text="Rojo"
@@ -155,6 +155,7 @@
                         android:layout_height="match_parent"/>
 
                     <Button
+                        android:id="@+id/btnGreen"
                         android:textColor="@color/white"
                         android:textAlignment="center"
                         android:text="Verde"
@@ -166,6 +167,7 @@
                         android:layout_height="match_parent"/>
 
                     <Button
+                        android:id="@+id/btnBlue"
                         android:textColor="@color/white"
                         android:textAlignment="center"
                         android:text="Azul"

@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,27 +41,35 @@ public class MainActivity extends AppCompatActivity {
     BluetoothSPP bt;
     Context context;
     Boolean btConnect = false;
-    Button btnLeft, btnRight;
+    Button btnLeft, btnRight, btnRed, btnGreen, btnBlue;
     TextView txtValue;
+    TextView colorSeleccionado;
     Menu menu;
     Joystick joystickRight, joystickLeft;
     SharedPreferences prefs;
     VideoView videoView;
     private VelocimeterView velocimeter;
-
+    String colorled ="R";
+    String varInicio = "*";
+    String varFinal = "#";
     boolean acelerador = false;
-
+    boolean frontBack = true;
+    String valorDireccion ="000000";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.windowBackground));
+        btnRed = findViewById(R.id.btnRed);
+        btnGreen = findViewById(R.id.btnGreen);
+        btnBlue = findViewById(R.id.btnBlue);
         joystickLeft =  findViewById(R.id.joystickLeft);
         joystickRight =  findViewById(R.id.joystickRightt);
         velocimeter = findViewById(R.id.velocimeter);
         btnLeft = findViewById(R.id.btnLeft);
         btnRight = findViewById(R.id.btnRight);
+        colorSeleccionado = findViewById(R.id.colorSeleccionado);
         // setup bluetooth
         bt = new BluetoothSPP(context);
         checkBluetoothState();
@@ -72,12 +81,42 @@ public class MainActivity extends AppCompatActivity {
                  if (event.getAction() == MotionEvent.ACTION_UP ) {
                     velocimeter.setValue(0, true);
                     txtValue.setText("Velocidad: 0 RPM");
-                     sendBluetoothData("S");
                      acelerador = false;
+                     sendBluetoothData("000000");
                 }
                 return false;
             }
         });
+
+
+        //ELECCION DE COLOR DE LED
+        btnRed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                colorled = "R";
+                colorSeleccionado.setText("Rojo");
+                colorSeleccionado.setTextColor(getResources().getColor(R.color.red));
+            }
+        });
+
+        btnGreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                colorled = "G";
+                colorSeleccionado.setText("Verde");
+                colorSeleccionado.setTextColor(getResources().getColor(R.color.green));
+            }
+        });
+
+        btnBlue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                colorled = "B";
+                colorSeleccionado.setText("Azul");
+                colorSeleccionado.setTextColor(getResources().getColor(R.color.blue));
+            }
+        });
+
 
         bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
             public void onDeviceConnected(String name, String address) {
@@ -119,26 +158,40 @@ public class MainActivity extends AppCompatActivity {
 
                 int direction = get8Direction(degrees);
 
-                if (direction == STICK_UP) {
+                if (direction == STICK_UP  && acelerador) {
 
-                } else if (direction == STICK_UPRIGHT) {
+                    sendBluetoothData(valorDireccion+valorDireccion);
 
-                } else if (direction == STICK_RIGHT) {
-                    sendBluetoothData("D");
+                } else if (direction == STICK_UPRIGHT && acelerador) {
 
-                } else if (direction == STICK_DOWNRIGHT) {
+                    sendBluetoothData(valorDireccion+"030");
 
-                } else if (direction == STICK_DOWN) {
+                } else if (direction == STICK_RIGHT && acelerador) {
 
-                } else if (direction == STICK_DOWNLEFT) {
+                        sendBluetoothData(valorDireccion +"000");
 
-                } else if (direction == STICK_LEFT) {
-                    sendBluetoothData("C");
+                } else if (direction == STICK_DOWNRIGHT && acelerador) {
 
-                } else if (direction == STICK_UPLEFT) {
+                    sendBluetoothData(valorDireccion+"030");
+
+                } else if (direction == STICK_DOWN && acelerador) {
+
+                    sendBluetoothData(valorDireccion+valorDireccion);
+
+                } else if (direction == STICK_DOWNLEFT && acelerador) {
+
+                    sendBluetoothData("030"+valorDireccion);
+
+                } else if (direction == STICK_LEFT && acelerador) {
+
+                        sendBluetoothData("000"+valorDireccion);
+
+                } else if (direction == STICK_UPLEFT && acelerador) {
+
+                    sendBluetoothData("030"+valorDireccion);
 
                 } else {
-                    // no direction
+                    sendBluetoothData("000000");
                 }
             }
 
@@ -160,46 +213,135 @@ public class MainActivity extends AppCompatActivity {
                 int direction = get8Direction(degrees);
 
                 if (direction == STICK_UP) {
-                    acelerador = true;
-                    velocimeter.setValue(distanceConvert(offset),true);
-                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
-                    txtValue.setText(value);
-                    sendBluetoothData("A");
+                    //si frontBack == true entonces ir FRONT else ir BACK
+                        frontBack = true;
+                        acelerador = true;
+                        velocimeter.setValue(distanceConvert(offset),true);
+                        String valorAntes = String.valueOf(distanceConvert(offset));
+
+                            if(valorAntes.length()==2){
+
+                                valorDireccion = "0"+valorAntes;
+                                    String value = "Velocidad: " + "0"+valorAntes+ " RPM";
+                                    txtValue.setText(value);
+
+                            }else if(valorAntes.length()==3){
+
+                                valorDireccion = valorAntes;
+                                    String value = "Velocidad: " +valorAntes+ " RPM";
+                                    txtValue.setText(value);
+
+                            }
+
                 } else if (direction == STICK_DOWN) {
+                    frontBack = false;
                     acelerador = true;
                     velocimeter.setValue(distanceConvert(offset),true);
-                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
-                    txtValue.setText(value);
-                    sendBluetoothData("B");
+                    String valorAntes = String.valueOf(distanceConvert(offset));
+
+                    if(valorAntes.length()==2){
+
+                        valorDireccion = "0"+valorAntes;
+                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }else if(valorAntes.length()==3){
+
+                        valorDireccion = valorAntes;
+                        String value = "Velocidad: " +valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }
+
+
                 } else if(direction == STICK_UPRIGHT){
+                    frontBack = true;
                     acelerador = true;
                     velocimeter.setValue(distanceConvert(offset),true);
-                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
-                    txtValue.setText(value);
-                    sendBluetoothData("A");
+                    String valorAntes = String.valueOf(distanceConvert(offset));
+
+                    if(valorAntes.length()==2){
+
+                        valorDireccion = "0"+valorAntes;
+                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }else if(valorAntes.length()==3){
+
+                        valorDireccion = valorAntes;
+                        String value = "Velocidad: " +valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }
+
+
                 } else if(direction == STICK_UPLEFT) {
+
+                    frontBack = true;
                     acelerador = true;
-                    velocimeter.setValue(distanceConvert(offset), true);
-                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
-                    txtValue.setText(value);
-                    sendBluetoothData("A");
+                    velocimeter.setValue(distanceConvert(offset),true);
+                    String valorAntes = String.valueOf(distanceConvert(offset));
+
+                    if(valorAntes.length()==2){
+
+                        valorDireccion = "0"+valorAntes;
+                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }else if(valorAntes.length()==3){
+
+                        valorDireccion = valorAntes;
+                        String value = "Velocidad: " +valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }
+
+
                 } else if(direction == STICK_DOWNRIGHT) {
+                    frontBack = false;
                     acelerador = true;
-                    velocimeter.setValue(distanceConvert(offset), true);
-                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
-                    txtValue.setText(value);
-                    sendBluetoothData("B");
+                    velocimeter.setValue(distanceConvert(offset),true);
+                    String valorAntes = String.valueOf(distanceConvert(offset));
+
+                    if(valorAntes.length()==2){
+
+                        valorDireccion = "0"+valorAntes;
+                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }else if(valorAntes.length()==3){
+
+                        valorDireccion = valorAntes;
+                        String value = "Velocidad: " +valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }
+
                 } else if(direction == STICK_DOWNLEFT) {
+                    frontBack = false;
                     acelerador = true;
-                    velocimeter.setValue(distanceConvert(offset), true);
-                    String value = "Velocidad: " + distanceConvert(offset) + " RPM";
-                    txtValue.setText(value);
-                    sendBluetoothData("B");
+                    velocimeter.setValue(distanceConvert(offset),true);
+                    String valorAntes = String.valueOf(distanceConvert(offset));
+
+                    if(valorAntes.length()==2){
+
+                        valorDireccion = "0"+valorAntes;
+                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }else if(valorAntes.length()==3){
+
+                        valorDireccion = valorAntes;
+                        String value = "Velocidad: " +valorAntes+ " RPM";
+                        txtValue.setText(value);
+
+                    }
+
                 }else{
-                    sendBluetoothData("S");
                     acelerador = false;
                     velocimeter.setValue(0, true);
                     txtValue.setText("Velocidad: 0 RPM");
+                    sendBluetoothData("000000");
                 }
             }
 
@@ -223,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
         }
     }
+
 
     public void msj (String mensaje,String type){
         if(type.equals("success")){
@@ -258,7 +401,8 @@ public class MainActivity extends AppCompatActivity {
                 bt.startService(BluetoothState.DEVICE_OTHER);
                 setup();
             } else {
-                // Do something if user doesn't choose any device (Pressed back)
+                Intent intent = new Intent(getApplicationContext(), DeviceListPrimary.class);
+                startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
             }
         }
     }
@@ -288,10 +432,18 @@ public class MainActivity extends AppCompatActivity {
     public void sendBluetoothData(final String data) {
 
         final Handler handler = new Handler();
-
         final Runnable r = new Runnable() {
             public void run() {
-                bt.send(data, true);
+                String direccion ="0";
+
+                if(frontBack){
+                    direccion ="1";
+                }else if(!frontBack){
+                    direccion = "0";
+                }
+
+                bt.send(varInicio+direccion + colorled+data+ varFinal,true);
+
             }
         };
         handler.postDelayed(r, 50);
@@ -330,6 +482,7 @@ public class MainActivity extends AppCompatActivity {
 
     public int distanceConvert(float offset) {
         int pwm = (int) (offset * 255);
+
         return (pwm);
     }
 
