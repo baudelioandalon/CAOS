@@ -14,11 +14,12 @@
     <Button
         android:layout_margin="10dp"
         android:background="@drawable/shape_btn_caos"
+        android:drawableEnd="@drawable/ic_right_arrow"
         android:id="@+id/btnScan"
         android:textColor="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="Agregar dispositivo" />
+        android:text="Agregar otro dispositivo" />
 
 </RelativeLayout>
