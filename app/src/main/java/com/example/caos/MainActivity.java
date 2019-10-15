@@ -12,22 +12,20 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.github.glomadrian.velocimeterlibrary.VelocimeterView;
 import com.jmedeisis.bugstick.Joystick;
 import com.jmedeisis.bugstick.JoystickListener;
 import com.marcinmoskala.arcseekbar.ArcSeekBar;
 import com.onurkaganaldemir.ktoastlib.KToast;
+import com.sdsmdg.harjot.crollerTest.Croller;
+import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
-import app.akexorcist.bluetotohspp.library.DeviceList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,12 +46,9 @@ public class MainActivity extends AppCompatActivity {
 //    Button btnRight;
     TextView txtValue;
     TextView colorSeleccionado;
-    Menu menu;
     Joystick  joystickLeft;
-//    Joystick joystickRight;
     SharedPreferences prefs;
     VideoView videoView;
-//    private VelocimeterView velocimeter;
     String colorled ="R";
     String varInicio = "*";
     String varFinal = "#";
@@ -62,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     String valorDireccion ="000000";
     RelativeLayout container;
     ArcSeekBar seekArc;
+    Croller croller;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         joystickLeft =  findViewById(R.id.joystickLeft);
         container = findViewById(R.id.container);
         seekArc = findViewById(R.id.seekArc);
-
+        croller = findViewById(R.id.croller);
 
         AnimationDrawable animDrawable = (AnimationDrawable) container.getBackground();
         animDrawable.setEnterFadeDuration(10);
@@ -90,19 +86,28 @@ public class MainActivity extends AppCompatActivity {
         bt = new BluetoothSPP(context);
         checkBluetoothState();
 
-//        btnRight.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//
-//                 if (event.getAction() == MotionEvent.ACTION_UP ) {
-//                    velocimeter.setValue(0, true);
-//                    txtValue.setText("Velocidad: 0 RPM");
-//                     acelerador = false;
-//                     sendBluetoothData("000000");
-//                }
-//                return false;
-//            }
-//        });
+        croller.setOnCrollerChangeListener(new OnCrollerChangeListener() {
+            @Override
+            public void onProgressChanged(Croller croller, int progress) {
+                seekArc.setProgress(progress);
+                acelerador = true;
+                // use the progress
+            }
+
+            @Override
+            public void onStartTrackingTouch(Croller croller) {
+                // tracking started
+            }
+
+            @Override
+            public void onStopTrackingTouch(Croller croller) {
+                croller.setProgress(0);
+                seekArc.setProgress(0);
+                    txtValue.setText("Velocidad: 0 RPM");
+                     acelerador = false;
+                     sendBluetoothData("000000",false);
+            }
+        });
 
 
         //ELECCION DE COLOR DE LED
@@ -110,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 colorled = "G";
+                sendBluetoothData("000000",true);
                 colorSeleccionado.setText("Rojo");
                 colorSeleccionado.setTextColor(getResources().getColor(R.color.red));
             }
@@ -119,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 colorled = "R";
+                sendBluetoothData("000000",true);
                 colorSeleccionado.setText("Verde");
                 colorSeleccionado.setTextColor(getResources().getColor(R.color.green));
             }
@@ -128,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 colorled = "B";
+                sendBluetoothData("000000",true);
                 colorSeleccionado.setText("Azul");
                 colorSeleccionado.setTextColor(getResources().getColor(R.color.blue));
             }
@@ -175,39 +183,53 @@ public class MainActivity extends AppCompatActivity {
                 int direction = get8Direction(degrees);
 
                 if (direction == STICK_UP  && acelerador) {
-
-                    sendBluetoothData(valorDireccion+valorDireccion);
+                    frontBack = true;
+                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+potenciaConvert(seekArc.getProgress()),false);
 
                 } else if (direction == STICK_UPRIGHT && acelerador) {
-
-                    sendBluetoothData(valorDireccion+"030");
+                    frontBack = true;
+                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+"030",false);
 
                 } else if (direction == STICK_RIGHT && acelerador) {
+                    frontBack = true;
 
-                        sendBluetoothData(valorDireccion +"000");
+                        sendBluetoothData(potenciaConvert(seekArc.getProgress()) +"000",false);
 
                 } else if (direction == STICK_DOWNRIGHT && acelerador) {
+                    frontBack = false;
 
-                    sendBluetoothData(valorDireccion+"030");
+                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+"030",false);
 
                 } else if (direction == STICK_DOWN && acelerador) {
+                    frontBack = false;
 
-                    sendBluetoothData(valorDireccion+valorDireccion);
+                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+potenciaConvert(seekArc.getProgress()),false);
 
-                } else if (direction == STICK_DOWNLEFT && acelerador) {
+                } else if ( direction == STICK_DOWNLEFT && acelerador ) {
+                    frontBack = false;
 
-                    sendBluetoothData("030"+valorDireccion);
+                    sendBluetoothData("030"+ potenciaConvert(seekArc.getProgress()),false);
 
-                } else if (direction == STICK_LEFT && acelerador) {
+                } else if( direction == STICK_LEFT && acelerador){
+                    frontBack = true;
 
-                        sendBluetoothData("000"+valorDireccion);
+                    sendBluetoothData("000"+ potenciaConvert(seekArc.getProgress()),false);
+                }else if(direction == STICK_UPLEFT && acelerador){
+                    frontBack = true;
+                    sendBluetoothData("030"+ potenciaConvert(seekArc.getProgress()) ,false);
+                }
+                    else if ( direction == STICK_LEFT  && !acelerador|| direction == STICK_UPLEFT  && !acelerador|| direction == STICK_DOWNLEFT && !acelerador) {
+                    frontBack = true;
+                    txtValue.setText(potenciaConvert(distanceConvert(offset)) + " RPM");
+                        sendBluetoothData("000"+ distanceConvert(offset),false);
 
-                } else if (direction == STICK_UPLEFT && acelerador) {
+                }else if ( direction == STICK_RIGHT  && !acelerador|| direction == STICK_UPRIGHT  && !acelerador|| direction == STICK_DOWNRIGHT&& !acelerador) {
+                    frontBack = true;
+                    txtValue.setText(potenciaConvert(distanceConvert(offset)) + " RPM");
+                    sendBluetoothData( distanceConvert(offset)+"000",false);
 
-                    sendBluetoothData("030"+valorDireccion);
-
-                } else {
-                    sendBluetoothData("000000");
+                } else{
+                    sendBluetoothData("000000",false);
                 }
             }
 
@@ -216,156 +238,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-//        joystickRight.setJoystickListener(new JoystickListener() {
-//            @Override
-//            public void onDown() {
-//
-//            }
-//
-//            @Override
-//            public void onDrag(float degrees, float offset) {
-//                // set text
-//                int direction = get8Direction(degrees);
-//
-//                if (direction == STICK_UP) {
-//                    //si frontBack == true entonces ir FRONT else ir BACK
-//                        frontBack = true;
-//                        acelerador = true;
-//                        velocimeter.setValue(distanceConvert(offset),true);
-//                        String valorAntes = String.valueOf(distanceConvert(offset));
-//
-//                            if(valorAntes.length()==2){
-//
-//                                valorDireccion = "0"+valorAntes;
-//                                    String value = "Velocidad: " + "0"+valorAntes+ " RPM";
-//                                    txtValue.setText(value);
-//
-//                            }else if(valorAntes.length()==3){
-//
-//                                valorDireccion = valorAntes;
-//                                    String value = "Velocidad: " +valorAntes+ " RPM";
-//                                    txtValue.setText(value);
-//
-//                            }
-//
-//                } else if (direction == STICK_DOWN) {
-//                    frontBack = false;
-//                    acelerador = true;
-//                    velocimeter.setValue(distanceConvert(offset),true);
-//                    String valorAntes = String.valueOf(distanceConvert(offset));
-//
-//                    if(valorAntes.length()==2){
-//
-//                        valorDireccion = "0"+valorAntes;
-//                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }else if(valorAntes.length()==3){
-//
-//                        valorDireccion = valorAntes;
-//                        String value = "Velocidad: " +valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }
-//
-//
-//                } else if(direction == STICK_UPRIGHT){
-//                    frontBack = true;
-//                    acelerador = true;
-//                    velocimeter.setValue(distanceConvert(offset),true);
-//                    String valorAntes = String.valueOf(distanceConvert(offset));
-//
-//                    if(valorAntes.length()==2){
-//
-//                        valorDireccion = "0"+valorAntes;
-//                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }else if(valorAntes.length()==3){
-//
-//                        valorDireccion = valorAntes;
-//                        String value = "Velocidad: " +valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }
-//
-//
-//                } else if(direction == STICK_UPLEFT) {
-//
-//                    frontBack = true;
-//                    acelerador = true;
-//                    velocimeter.setValue(distanceConvert(offset),true);
-//                    String valorAntes = String.valueOf(distanceConvert(offset));
-//
-//                    if(valorAntes.length()==2){
-//
-//                        valorDireccion = "0"+valorAntes;
-//                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }else if(valorAntes.length()==3){
-//
-//                        valorDireccion = valorAntes;
-//                        String value = "Velocidad: " +valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }
-//
-//
-//                } else if(direction == STICK_DOWNRIGHT) {
-//                    frontBack = false;
-//                    acelerador = true;
-//                    velocimeter.setValue(distanceConvert(offset),true);
-//                    String valorAntes = String.valueOf(distanceConvert(offset));
-//
-//                    if(valorAntes.length()==2){
-//
-//                        valorDireccion = "0"+valorAntes;
-//                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }else if(valorAntes.length()==3){
-//
-//                        valorDireccion = valorAntes;
-//                        String value = "Velocidad: " +valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }
-//
-//                } else if(direction == STICK_DOWNLEFT) {
-//                    frontBack = false;
-//                    acelerador = true;
-//                    velocimeter.setValue(distanceConvert(offset),true);
-//                    String valorAntes = String.valueOf(distanceConvert(offset));
-//
-//                    if(valorAntes.length()==2){
-//
-//                        valorDireccion = "0"+valorAntes;
-//                        String value = "Velocidad: " + "0"+valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }else if(valorAntes.length()==3){
-//
-//                        valorDireccion = valorAntes;
-//                        String value = "Velocidad: " +valorAntes+ " RPM";
-//                        txtValue.setText(value);
-//
-//                    }
-//
-//                }else{
-//                    acelerador = false;
-//                    velocimeter.setValue(0, true);
-//                    txtValue.setText("Velocidad: 0 RPM");
-//                    sendBluetoothData("000000");
-//                }
-//            }
-//
-//            @Override
-//            public void onUp() {
-//
-//            }
-//        });
 
     }
 
@@ -445,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void sendBluetoothData(final String data) {
+    public void sendBluetoothData(final String data, final boolean soloColor) {
 
         final Handler handler = new Handler();
         final Runnable r = new Runnable() {
@@ -458,33 +330,54 @@ public class MainActivity extends AppCompatActivity {
                     direccion = "0";
                 }
 
-                bt.send(varInicio+direccion + colorled+data+ varFinal,true);
+                // *1 R 000 000 000 #
+
+                    bt.send(varInicio+direccion + colorled+data+ varFinal,true);
 
             }
         };
-        handler.postDelayed(r, 50);
+        handler.postDelayed(r, 0);
     }
 
     public int get8Direction(float degrees) {
         float angle = angleConvert(degrees);
 
-        if (angle >= 85 && angle < 95) {
+        if (angle >= 66 && angle < 109) {
             return STICK_UP;
-        } else if (angle >= 40 && angle < 50) {
+        } else if (angle >= 23 && angle < 66) {
             return STICK_UPRIGHT;
-        } else if (angle >= 355 || angle < 5) {
+        } else if (angle >= 338 || angle < 23) {
             return STICK_RIGHT;
-        } else if (angle >= 310 && angle < 320) {
+        } else if (angle >= 281 && angle < 337) {
             return STICK_DOWNRIGHT;
-        } else if (angle >= 265 && angle < 275) {
+        } else if (angle >= 238 && angle < 281) {
             return STICK_DOWN;
-        } else if (angle >= 220 && angle < 230) {
+        } else if (angle >= 195 && angle < 238) {
             return STICK_DOWNLEFT;
-        } else if (angle >= 175 && angle < 185) {
+        } else if (angle >= 152 && angle < 195) {
             return STICK_LEFT;
-        } else if (angle >= 130 && angle < 140) {
+        } else if (angle >= 109 && angle < 152) {
             return STICK_UPLEFT;
         }
+
+
+//        if (angle >= 85 && angle < 95) {
+//            return STICK_UP;
+//        } else if (angle >= 40 && angle < 50) {
+//            return STICK_UPRIGHT;
+//        } else if (angle >= 355 || angle < 5) {
+//            return STICK_RIGHT;
+//        } else if (angle >= 310 && angle < 320) {
+//            return STICK_DOWNRIGHT;
+//        } else if (angle >= 265 && angle < 275) {
+//            return STICK_DOWN;
+//        } else if (angle >= 220 && angle < 230) {
+//            return STICK_DOWNLEFT;
+//        } else if (angle >= 175 && angle < 185) {
+//            return STICK_LEFT;
+//        } else if (angle >= 130 && angle < 140) {
+//            return STICK_UPLEFT;
+//        }
 
         return 0;
     }
@@ -500,6 +393,22 @@ public class MainActivity extends AppCompatActivity {
         int pwm = (int) (offset * 255);
 
         return (pwm);
+    }
+
+    public String potenciaConvert(int dato){
+        String finalDato;
+
+        if(dato == 0) {
+            finalDato = "000";
+        }else if(dato>0 && dato<10){
+            finalDato = "00"+dato;
+        }else if(dato>9 && dato <100){
+            finalDato = "0"+dato;
+        }else{
+            finalDato = String.valueOf(dato);
+        }
+
+        return finalDato;
     }
 
 
