@@ -14,8 +14,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_mac" />
-                            <entry key="sourceFile" value="C:\Users\baude\Downloads\link.svg" />
+                            <entry key="outputName" value="ic_front_back" />
+                            <entry key="sourceFile" value="C:\Users\baude\Downloads\chevron-up.svg" />
                           </map>
                         </option>
                       </PersistentState>

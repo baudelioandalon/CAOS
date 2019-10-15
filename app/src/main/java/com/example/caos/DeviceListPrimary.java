@@ -68,12 +68,12 @@ public class DeviceListPrimary extends AppCompatActivity implements AdapterBluet
                 mUploads.clear();
 
             for (BluetoothDevice bDevice : paireDevices) {
-//                if(bDevice.getName().substring(0,5).equals("CAOS-")){
+                if(bDevice.getName().substring(0,5).equals("CAOS-")){
                     ModeloBluetooth modelo = new ModeloBluetooth();
                     modelo.setNameBluetooth(bDevice.getName());
                     modelo.setAddressBluetooth(bDevice.getAddress());
                     mUploads.add(modelo);
-//                }
+                }
             }
             if(mUploads.size() == 0){
 //                msj("No hay dispositivos cercanos","warning");
