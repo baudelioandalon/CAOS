@@ -1,2 +1,2 @@
-include ':app',':velocimeterlibrary'
+include ':app'
 rootProject.name='CAOS'

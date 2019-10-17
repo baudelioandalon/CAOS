@@ -130,8 +130,7 @@ public class DeviceListPrimary extends AppCompatActivity implements AdapterBluet
 
         }
         final ModeloBluetooth uploadCurrent = mUploads.get(position);
-        final String name = uploadCurrent.getNameBluetooth().toUpperCase();
-//        msj(name + " - " + uploadCurrent.getAddressBluetooth(),"normal");
+
         // Create the result Intent and include the MAC address
         Intent intent = new Intent();
         intent.putExtra(BluetoothState.EXTRA_DEVICE_ADDRESS, uploadCurrent.getAddressBluetooth());

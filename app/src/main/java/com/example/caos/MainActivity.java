@@ -2,6 +2,8 @@ package com.example.caos;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.jmedeisis.bugstick.Joystick;
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     Boolean btConnect = false;
     Button btnLeft,  btnRed, btnGreen, btnBlue;
-//    Button btnRight;
+    //    Button btnRight;
     TextView txtValue;
     TextView colorSeleccionado;
     Joystick  joystickLeft;
@@ -103,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(Croller croller) {
                 croller.setProgress(0);
                 seekArc.setProgress(0);
-                    txtValue.setText("Velocidad: 0 RPM");
-                     acelerador = false;
-                     sendBluetoothData("000000",false);
+                txtValue.setText("Velocidad: 0 RPM");
+                acelerador = false;
+                sendBluetoothData("000000",false);
             }
         });
 
@@ -193,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (direction == STICK_RIGHT && acelerador) {
                     frontBack = true;
 
-                        sendBluetoothData(potenciaConvert(seekArc.getProgress()) +"000",false);
+                    sendBluetoothData(potenciaConvert(seekArc.getProgress()) +"000",false);
 
                 } else if (direction == STICK_DOWNRIGHT && acelerador) {
                     frontBack = false;
@@ -218,10 +221,10 @@ public class MainActivity extends AppCompatActivity {
                     frontBack = true;
                     sendBluetoothData("030"+ potenciaConvert(seekArc.getProgress()) ,false);
                 }
-                    else if ( direction == STICK_LEFT  && !acelerador|| direction == STICK_UPLEFT  && !acelerador|| direction == STICK_DOWNLEFT && !acelerador) {
+                else if ( direction == STICK_LEFT  && !acelerador|| direction == STICK_UPLEFT  && !acelerador|| direction == STICK_DOWNLEFT && !acelerador) {
                     frontBack = true;
                     txtValue.setText(potenciaConvert(distanceConvert(offset)) + " RPM");
-                        sendBluetoothData("000"+ distanceConvert(offset),false);
+                    sendBluetoothData("000"+ distanceConvert(offset),false);
 
                 }else if ( direction == STICK_RIGHT  && !acelerador|| direction == STICK_UPRIGHT  && !acelerador|| direction == STICK_DOWNRIGHT&& !acelerador) {
                     frontBack = true;
@@ -332,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // *1 R 000 000 000 #
 
-                    bt.send(varInicio+direccion + colorled+data+ varFinal,true);
+                bt.send(varInicio+direccion + colorled+data+ varFinal,true);
 
             }
         };
