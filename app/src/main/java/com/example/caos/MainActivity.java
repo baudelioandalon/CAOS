@@ -27,6 +27,11 @@ import com.marcinmoskala.arcseekbar.ArcSeekBar;
 import com.onurkaganaldemir.ktoastlib.KToast;
 import com.sdsmdg.harjot.crollerTest.Croller;
 import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
 
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean btConnect = false;
     Button btnLeft,  btnRed, btnGreen, btnBlue;
     //    Button btnRight;
-    TextView txtValue;
+    TextView txtValue,txtmensaje;
     TextView colorSeleccionado;
     Joystick  joystickLeft;
     SharedPreferences prefs;
@@ -55,12 +60,15 @@ public class MainActivity extends AppCompatActivity {
     String colorled ="R";
     String varInicio = "*";
     String varFinal = "#";
+    int contador=30;
     boolean acelerador = false;
     boolean frontBack = true;
+    boolean inverter = false;
     String valorDireccion ="000000";
     RelativeLayout container;
     ArcSeekBar seekArc;
     Croller croller;
+    String datos ="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         container = findViewById(R.id.container);
         seekArc = findViewById(R.id.seekArc);
         croller = findViewById(R.id.croller);
+        txtmensaje = findViewById(R.id.txtmensaje);
 
         AnimationDrawable animDrawable = (AnimationDrawable) container.getBackground();
         animDrawable.setEnterFadeDuration(10);
@@ -108,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 seekArc.setProgress(0);
                 txtValue.setText("Velocidad: 0 RPM");
                 acelerador = false;
-                sendBluetoothData("000000",false);
+                sendBluetoothData("000000");
             }
         });
 
@@ -118,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 colorled = "G";
-                sendBluetoothData("000000",true);
+                sendBluetoothData("000000");
                 colorSeleccionado.setText("Rojo");
                 colorSeleccionado.setTextColor(getResources().getColor(R.color.red));
             }
@@ -128,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 colorled = "R";
-                sendBluetoothData("000000",true);
+                sendBluetoothData("000000");
                 colorSeleccionado.setText("Verde");
                 colorSeleccionado.setTextColor(getResources().getColor(R.color.green));
             }
@@ -138,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 colorled = "B";
-                sendBluetoothData("000000",true);
+                sendBluetoothData("000000");
                 colorSeleccionado.setText("Azul");
                 colorSeleccionado.setTextColor(getResources().getColor(R.color.blue));
             }
@@ -149,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
             public void onDeviceConnected(String name, String address) {
                 btConnect = true;
                 msj("Todo listo","success");
+                exe();
             }
 
             public void onDeviceDisconnected() {
@@ -166,7 +176,32 @@ public class MainActivity extends AppCompatActivity {
         // set view
         mDecorView = getWindow().getDecorView();
         hideSystemUI();
+
+
     }
+
+  public void exe(){
+      final Handler handler = new Handler();
+      final Runnable r = new Runnable() {
+          public void run() {
+
+              if(contador>0){
+                  contador--;
+                  String valor = contador + " segundos.";
+                  txtmensaje.setText(valor);
+                  exe();
+              }else if(contador == 0){
+                  inverter = !inverter;
+                  contador = 30;
+                  frontBack = !frontBack;
+                  sendBluetoothData(datos);
+                  exe();
+                  msj("Los controles han cambiado","warning");
+              }
+          }
+      };
+      handler.postDelayed(r, 1000);
+  }
 
 
 
@@ -186,53 +221,84 @@ public class MainActivity extends AppCompatActivity {
                 int direction = get8Direction(degrees);
 
                 if (direction == STICK_UP  && acelerador) {
-                    frontBack = true;
-                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+potenciaConvert(seekArc.getProgress()),false);
+
+                    if(inverter){
+                        frontBack = false;
+                    }else{
+                        frontBack = true;
+                    }
+                    datos = potenciaConvert(seekArc.getProgress())+potenciaConvert(seekArc.getProgress());
+                    sendBluetoothData(datos);
 
                 } else if (direction == STICK_UPRIGHT && acelerador) {
-                    frontBack = true;
-                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+"030",false);
+                    if(inverter){
+                        frontBack = false;
+                    }else{
+                        frontBack = true;
+                    }
+                    datos = "030"+ potenciaConvert(seekArc.getProgress());
+
+                    sendBluetoothData(datos);
 
                 } else if (direction == STICK_RIGHT && acelerador) {
-                    frontBack = true;
 
-                    sendBluetoothData(potenciaConvert(seekArc.getProgress()) +"000",false);
+                if(inverter){
+                    frontBack = false;
+                }else{
+                    frontBack = true;
+                }
+                datos = potenciaConvert(seekArc.getProgress()) +"000";
+                    sendBluetoothData(datos);
 
                 } else if (direction == STICK_DOWNRIGHT && acelerador) {
-                    frontBack = false;
 
-                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+"030",false);
+
+                    if(inverter){
+                        frontBack = true;
+                    }else{
+                        frontBack = false;
+                    }
+                    datos = potenciaConvert(seekArc.getProgress())+"030";
+                    sendBluetoothData(datos);
 
                 } else if (direction == STICK_DOWN && acelerador) {
-                    frontBack = false;
-
-                    sendBluetoothData(potenciaConvert(seekArc.getProgress())+potenciaConvert(seekArc.getProgress()),false);
+                    if(inverter){
+                        frontBack = true;
+                    }else{
+                        frontBack = false;
+                    }
+                    datos = potenciaConvert(seekArc.getProgress())+potenciaConvert(seekArc.getProgress());
+                    sendBluetoothData(datos);
 
                 } else if ( direction == STICK_DOWNLEFT && acelerador ) {
                     frontBack = false;
-
-                    sendBluetoothData("030"+ potenciaConvert(seekArc.getProgress()),false);
+                    datos = "030"+ potenciaConvert(seekArc.getProgress());
+                    sendBluetoothData(datos);
 
                 } else if( direction == STICK_LEFT && acelerador){
                     frontBack = true;
-
-                    sendBluetoothData("000"+ potenciaConvert(seekArc.getProgress()),false);
+                    datos = "000"+ potenciaConvert(seekArc.getProgress());
+                    sendBluetoothData(datos);
                 }else if(direction == STICK_UPLEFT && acelerador){
                     frontBack = true;
-                    sendBluetoothData("030"+ potenciaConvert(seekArc.getProgress()) ,false);
+                    datos = potenciaConvert(seekArc.getProgress())+"030";
+                    sendBluetoothData(datos);
+
                 }
                 else if ( direction == STICK_LEFT  && !acelerador|| direction == STICK_UPLEFT  && !acelerador|| direction == STICK_DOWNLEFT && !acelerador) {
                     frontBack = true;
                     txtValue.setText(potenciaConvert(distanceConvert(offset)) + " RPM");
-                    sendBluetoothData("000"+ distanceConvert(offset),false);
+                    datos = "000"+ distanceConvert(offset);
+                    sendBluetoothData(datos);
 
                 }else if ( direction == STICK_RIGHT  && !acelerador|| direction == STICK_UPRIGHT  && !acelerador|| direction == STICK_DOWNRIGHT&& !acelerador) {
                     frontBack = true;
                     txtValue.setText(potenciaConvert(distanceConvert(offset)) + " RPM");
-                    sendBluetoothData( distanceConvert(offset)+"000",false);
+                    datos = distanceConvert(offset)+"000";
+                    sendBluetoothData(datos);
 
                 } else{
-                    sendBluetoothData("000000",false);
+                    sendBluetoothData("000000");
                 }
             }
 
@@ -320,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void sendBluetoothData(final String data, final boolean soloColor) {
+    public void sendBluetoothData(final String data) {
 
         final Handler handler = new Handler();
         final Runnable r = new Runnable() {
@@ -362,25 +428,6 @@ public class MainActivity extends AppCompatActivity {
         } else if (angle >= 109 && angle < 152) {
             return STICK_UPLEFT;
         }
-
-
-//        if (angle >= 85 && angle < 95) {
-//            return STICK_UP;
-//        } else if (angle >= 40 && angle < 50) {
-//            return STICK_UPRIGHT;
-//        } else if (angle >= 355 || angle < 5) {
-//            return STICK_RIGHT;
-//        } else if (angle >= 310 && angle < 320) {
-//            return STICK_DOWNRIGHT;
-//        } else if (angle >= 265 && angle < 275) {
-//            return STICK_DOWN;
-//        } else if (angle >= 220 && angle < 230) {
-//            return STICK_DOWNLEFT;
-//        } else if (angle >= 175 && angle < 185) {
-//            return STICK_LEFT;
-//        } else if (angle >= 130 && angle < 140) {
-//            return STICK_UPLEFT;
-//        }
 
         return 0;
     }

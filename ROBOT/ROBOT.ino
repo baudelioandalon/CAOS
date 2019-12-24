@@ -45,7 +45,7 @@ void setup() {
   //INICIAMOS EL 2DO NUCLEO
   // xTaskCreatePinnedToCore(loop2, "Task_2", 5000, NULL, 1, &Task2,0);
 
-  Serial.begin(9600);   SerialBT.begin("CAOS-test");
+  Serial.begin(9600);   SerialBT.begin("CAOS-01");
 
   pinMode(L1, OUTPUT);
   pinMode(L2, OUTPUT);

@@ -13,6 +13,30 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <TextView
+            android:textColor="@color/colorPrimary"
+            android:textSize="25sp"
+            android:gravity="right|bottom"
+            android:text="Modo CAOS en: "
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/txtmensaje"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:gravity="left|bottom"
+            android:text="30 segundos"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:orientation="vertical"
