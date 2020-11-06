@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/c76a40f28d9b4aad5c445d2d783152fc/ktoast-1.0.3/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/c76a40f28d9b4aad5c445d2d783152fc/ktoast-1.0.3/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/c76a40f28d9b4aad5c445d2d783152fc/ktoast-1.0.3/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

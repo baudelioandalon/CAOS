@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b8d8f9e650e970ab25d9093baaf7fd5c/Android-SpinKit-1.4.0/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b8d8f9e650e970ab25d9093baaf7fd5c/Android-SpinKit-1.4.0/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b8d8f9e650e970ab25d9093baaf7fd5c/Android-SpinKit-1.4.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.ybq/Android-SpinKit/1.4.0/14afc64edd24f71f975e874c683bfb00ad13097c/Android-SpinKit-1.4.0-javadoc.jar!/" />

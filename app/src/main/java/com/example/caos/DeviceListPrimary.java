@@ -68,7 +68,7 @@ public class DeviceListPrimary extends AppCompatActivity implements AdapterBluet
                 mUploads.clear();
 
             for (BluetoothDevice bDevice : paireDevices) {
-                if(bDevice.getName().substring(0,5).equals("CAOS-")){
+                if(bDevice.getName().startsWith("CAOS-")){
                     ModeloBluetooth modelo = new ModeloBluetooth();
                     modelo.setNameBluetooth(bDevice.getName());
                     modelo.setAddressBluetooth(bDevice.getAddress());
