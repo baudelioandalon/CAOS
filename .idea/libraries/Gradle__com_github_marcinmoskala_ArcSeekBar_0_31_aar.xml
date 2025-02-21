@@ -1,11 +1,13 @@
 <component name="libraryTable">
-  <library name="Gradle: com.github.marcinmoskala:ArcSeekBar:0.31@aar">
+  <library name="Gradle: com.github.marcinmoskala:ArcSeekBar:0.31@aar" external-system-id="GRADLE">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/eb4086706cb92e5c298f86cd6851e7b9/ArcSeekBar-0.31/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/eb4086706cb92e5c298f86cd6851e7b9/ArcSeekBar-0.31/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/eb4086706cb92e5c298f86cd6851e7b9/ArcSeekBar-0.31/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/be55aa7a781b06ac5cf43194089304f7/transformed/jetified-ArcSeekBar-0.31/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/be55aa7a781b06ac5cf43194089304f7/transformed/jetified-ArcSeekBar-0.31/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/be55aa7a781b06ac5cf43194089304f7/transformed/jetified-ArcSeekBar-0.31/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.marcinmoskala/ArcSeekBar/0.31/e04ff2bc54e40b2f85995af563631fd2f4ddbf90/ArcSeekBar-0.31-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

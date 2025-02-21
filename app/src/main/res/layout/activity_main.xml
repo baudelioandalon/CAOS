@@ -47,7 +47,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent">
 
-            <com.jmedeisis.bugstick.Joystick
+            <com.example.caos.utils.joystick.Joystick
                 android:id="@+id/joystickLeft"
                 android:layout_width="@dimen/base_size"
                 android:layout_height="@dimen/base_size"
@@ -60,7 +60,7 @@
                     android:layout_height="@dimen/stick_size"
                     android:background="@drawable/bg_stick_unpressed" />
 
-            </com.jmedeisis.bugstick.Joystick>
+            </com.example.caos.utils.joystick.Joystick>
 
         </LinearLayout>
 
@@ -187,7 +187,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.sdsmdg.harjot.crollerTest.Croller
+            <com.example.caos.utils.croller.Croller
                 android:id="@+id/croller"
                 android:layout_marginBottom="20dp"
                 android:layout_width="200dp"
